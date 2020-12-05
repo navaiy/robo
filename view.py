@@ -1,5 +1,5 @@
 from sqlalchemy.sql import exists
-from .model import *
+from model import *
 import re
 
 

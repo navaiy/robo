@@ -1,6 +1,6 @@
 import random
 import time
-from .callback_text import *
+from callback_text import *
 from telegram import ReplyKeyboardMarkup
 
 

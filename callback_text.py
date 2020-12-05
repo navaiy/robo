@@ -1,8 +1,8 @@
 import random
 import time
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
-from robate.callback import *
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from callback import *
 
 stop = False
 

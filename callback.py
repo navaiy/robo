@@ -1,4 +1,4 @@
-from DataBase.view import DataBase
+from view import DataBase
 from telegram import ReplyKeyboardMarkup
 
 
