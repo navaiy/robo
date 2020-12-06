@@ -11,12 +11,12 @@ second_token = '1216019804:AAEnT-e_6rMrN8vnnutpx_TlJbzEX2oY2Ok'
 updater = Updater(second_token)
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
-updater.dispatcher.add_handler(CommandHandler('link', link))
-updater.dispatcher.add_handler(CommandHandler('menu', menu))
-updater.dispatcher.add_handler(CommandHandler('list_invite', list_invite))
-
-updater.dispatcher.add_handler(CallbackQueryHandler(query))
-updater.dispatcher.add_handler(MessageHandler(Filters.text, callback_menu))
+# updater.dispatcher.add_handler(CommandHandler('link', link))
+# updater.dispatcher.add_handler(CommandHandler('menu', menu))
+# updater.dispatcher.add_handler(CommandHandler('list_invite', list_invite))
+#
+# updater.dispatcher.add_handler(CallbackQueryHandler(query))
+# updater.dispatcher.add_handler(MessageHandler(Filters.text, callback_menu))
 
 updater.start_polling()
 updater.idle()
