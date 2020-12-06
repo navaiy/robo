@@ -15,7 +15,7 @@ def start(update, context, ):
     markup = ReplyKeyboardMarkup(key, one_time_keyboard=True, resize_keyboard=True)
 
     database = DataBase(update.chat.first_name, update.chat_id, update.text)
-    database.run()
+    database.run(context)
 
     text = """🌹سلام {} عزیز 🌹\nبه ربات تحلیلگر بورس خوش آمدید برای شروع روی منو های مورد نظر کلیک کنید👇""".format(
         update.from_user.first_name)

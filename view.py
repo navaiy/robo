@@ -1,3 +1,4 @@
+import telegram
 from sqlalchemy.sql import exists
 from model import *
 import re
@@ -11,6 +12,7 @@ class DataBase:
     def __init__(self, user_name, user_id, user_id_invited):
         self.user_name = user_name
         self.user_id = user_id
+
         self.user_id_invited = self.get_user_id_invited(user_id_invited)
 
     def get_user_id_invited(self, user_id_invited):
@@ -43,7 +45,7 @@ class DataBase:
         else:
             print("is exsist user")
 
-    def new_invited(self):
+    def new_invited(self, context):
 
         user = session.query(UserInfo).filter(UserInfo.user_id == self.user_id_invited).first()
         inv = session.query(Invited).filter(Invited.user_info == user)
@@ -51,6 +53,10 @@ class DataBase:
         is_exsit = False
         for i in inv:
             if i.name == self.user_name:
+                is_exsit = True
+
+        if self.user_id_invited > 0:
+            if user.user_id == self.user_id:
                 is_exsit = True
 
         if self.user_id_invited > 0 and is_exsit == False:
@@ -62,6 +68,7 @@ class DataBase:
             if s == 1:
                 user.nu_caller_m = user.nu_caller
                 user.is_active = True
+                context.bot.send_message(chat_id=user.user_id, text="شما فعال شدید.")
                 print("active")
 
             session.commit()
@@ -79,7 +86,7 @@ class DataBase:
             list += inv.name + "\n"
         return list
 
-    def run(self):
+    def run(self, context):
         self.new_user()
-        self.new_invited()
+        self.new_invited(context)
         print("======================================================")

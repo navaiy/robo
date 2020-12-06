@@ -16,22 +16,23 @@ def callback_menu(update, context):
 
     # ===================================================================
     if update.message.text == '🔔 آلارم صف خرید':
-        database = DataBase(update.message.chat.first_name, update.message.chat_id, update.message.text)
+        database = DataBase(update.message,update.message.chat.first_name, update.message.chat_id, update.message.text)
         if database.is_check_active():
             key = [["برگشت به منو"]]
             markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
             list = ["صبا", "وملت", "فولاد", "شستا", "ذوب", "شبدر"]
             for i in list:
                 # print(query)
+                if update.message.text!="🔔 آلارم صف خرید":
+                    break
                 update.message.reply_text('{} صف خرید ✅'.format(i), reply_markup=markup)
                 time.sleep(random.randrange(1, 4))
-                sa()
         else:
             update.message.reply_text(
                 'شما به دلیل فعال نبودن اشتراک اجازه استفاده ندارید \n  برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید')
 
     if update.message.text == '🔔 آلارم صف فروش':
-        database = DataBase(update.message.chat.first_name, update.message.chat_id, update.message.text)
+        database = DataBase(update.message,update.message.chat.first_name, update.message.chat_id, update.message.text)
         if database.is_check_active():
             key = [["برگشت به منو"]]
             markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
