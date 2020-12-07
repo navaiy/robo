@@ -17,7 +17,7 @@ class UserInfo(Base):
     nu_caller_m = Column(Integer,default=0)
     nu_caller= Column(Integer)
     is_active = Column(Boolean)
-    time_active=Column(DateTime)
+    time_active=Column(Integer,default=0)
 
     def __init__(self, name, user_id, nu_caller, is_active):
         self.name = name

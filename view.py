@@ -9,10 +9,9 @@ class DataBase:
     user_id = 0
     user_id_invited = 0
 
-    def __init__(self, user_name, user_id, user_id_invited):
+    def __init__(self, user_name=None, user_id=None, user_id_invited=None):
         self.user_name = user_name
         self.user_id = user_id
-
         self.user_id_invited = self.get_user_id_invited(user_id_invited)
 
     def get_user_id_invited(self, user_id_invited):
@@ -24,6 +23,7 @@ class DataBase:
 
     def is_exist_user_database(self):
         user = session.query(UserInfo).filter(UserInfo.user_id == self.user_id).count()
+        session.close()
         if user > 0:
             return True
         else:
@@ -32,7 +32,10 @@ class DataBase:
     # ==================================================================
     def is_check_active(self):
         user = session.query(UserInfo).filter(UserInfo.user_id == self.user_id).first()
-        return user.is_active
+        session.close()
+        if user.time_active > 0:
+            return True
+        return False
 
     def new_user(self):
         if self.is_exist_user_database() == False:
@@ -67,11 +70,14 @@ class DataBase:
             s = user.nu_caller - user.nu_caller_m
             if s == 1:
                 user.nu_caller_m = user.nu_caller
+                user.time_active += 1
                 user.is_active = True
-                context.bot.send_message(chat_id=user.user_id, text="شما فعال شدید.")
+                context.bot.send_message(chat_id=user.user_id,
+                                         text="شما فعال شدید برای {} ثانیه".format(user.time_active * 60))
                 print("active")
 
             session.commit()
+
             text = 'Saved new invited for {}'.format(user.name)
             print(text)
         else:
@@ -84,9 +90,11 @@ class DataBase:
         list = ""
         for inv in invited:
             list += inv.name + "\n"
+        session.close()
         return list
 
     def run(self, context):
         self.new_user()
         self.new_invited(context)
+        session.close()
         print("======================================================")

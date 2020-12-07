@@ -1,7 +1,79 @@
+import time
 from view import DataBase
-from telegram import ReplyKeyboardMarkup
+from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 
 
+def shopp_queue(update, stop_event):
+    database = DataBase(update.message.chat.first_name, update.message.chat_id, update.message.text)
+    print(database.is_check_active())
+    if database.is_check_active():
+        key = [["برگشت"]]
+        markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
+        list = ["صبا", "وملت", "فولاد", "شستا", "ذوب", "شبدر"]
+
+        for i in list:
+            update.message.reply_text('{} صف خرید ✅'.format(i), reply_markup=markup)
+            time.sleep(1)
+            if stop_event.is_set():
+                stop_event.clear()
+                break
+    else:
+        text = "شما به دلیل فعال نبودن اشتراک اجازه استفاده ندارید برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
+        update.message.reply_text(text)
+
+
+def sale_queue(update, stop_event):
+    database = DataBase(update.message.chat.first_name, update.message.chat_id, update.message.text)
+    if database.is_check_active():
+        key = [["برگشت"]]
+        markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
+        list = ["صبا", "وملت", "فولاد", "شستا", "ذوب", "شبدر"]
+
+        for i in list:
+            update.message.reply_text('{} صف فروش ❌'.format(i), reply_markup=markup)
+            time.sleep(1)
+            if stop_event.is_set():
+                stop_event.clear()
+                break
+    else:
+        text = "شما به دلیل فعال نبودن اشتراک اجازه استفاده ندارید برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
+        update.message.reply_text(text)
+
+
+def purchase_subscrip(update):
+    key = [
+        [InlineKeyboardButton(" اشتراک یک ماهه 👍 ", callback_data='اشتراک یک ماهه'),
+         InlineKeyboardButton(" اشتراک سه ماهه✊ ", callback_data='اشتراک سه ماهه'), ],
+        [InlineKeyboardButton(" اشتراک شیش ماهه💪 ", callback_data='اشتراک شیش ماهه'), ],
+    ]
+    bttn = InlineKeyboardMarkup(key)
+    update.message.reply_text(" لطفاانتخاب کنید👇 ", reply_markup=bttn)
+
+
+def free_subscription(update):
+    text = """برای دریافت اشتراک رایگان شما باید لینک دعوت برای بقیه بفرستید و بعد از عضویت 5 نفر , به شما یک هفته امکان اسفاده از امکانات ربات میده. \n یرای دریافت لینک روی دریافت لینک کلیک کنید""".format(
+        update.message.from_user.first_name)
+
+    key = [["دریافت لینک دعوت"], ['نمایش افراد دعوت شده توسط شما'], ['برگشت به منو']]
+    markup = ReplyKeyboardMarkup(key, one_time_keyboard=True, resize_keyboard=True)
+
+    update.message.reply_text(text, reply_markup=markup)
+
+
+def queue_alert(update):
+    key = [["🔔 آلارم صف خرید", "🔔 آلارم صف فروش"], ['برگشت به منو']]
+    markup = ReplyKeyboardMarkup(key, one_time_keyboard=True, resize_keyboard=True)
+    update.message.reply_text(" لطفا انتخاب کنید ", reply_markup=markup)
+
+
+def menu_alert(update, context):
+    text = "منو"
+    key = [["🔔 آلارم صف خرید", "🔔 آلارم صف فروش"], ['برگشت به منو']]
+    markup = ReplyKeyboardMarkup(key, one_time_keyboard=True, resize_keyboard=True)
+    update.message.reply_text(text, reply_markup=markup)
+
+
+# ======================= Commend ===========================================
 def menu(update, context):
     text = "منو"
     key = [["🔔 آلارم صف خرید و فروش"], ["🛒 خرید اشتراک", 'اشتراک رایگان']]
@@ -9,7 +81,7 @@ def menu(update, context):
     update.message.reply_text(text, reply_markup=markup)
 
 
-def start(update, context, ):
+def start(update, context):
     update = update.message
     key = [["🔔 آلارم صف خرید و فروش"], ["🛒 خرید اشتراک", 'اشتراک رایگان']]
     markup = ReplyKeyboardMarkup(key, one_time_keyboard=True, resize_keyboard=True)
@@ -22,7 +94,7 @@ def start(update, context, ):
     update.reply_text(text, reply_markup=markup)
 
 
-def link(update, context, ):
+def link(update, context):
     link = "https://t.me/sdsdfd_bot?start={}".format(update.message.chat_id)
     text = """سلام من ربات تحلیلگر بورسم برای مطلع شدن از صف های خرید و فروش بر روی لینک زیر کلیک کنید \n {}""".format(
         link, update.message.from_user.first_name)
