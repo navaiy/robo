@@ -35,7 +35,8 @@ def sale_queue(update, stop_event):
     if database.is_check_active():
         key = [["برگشت"]]
         markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
-        list = ["صبا", "وملت", "فولاد", "شستا", "ذوب", "شبدر"]
+        list = ["صبا", "وملت", "فولاد", "شستا", "ذوب", "وملت", "فولاد", "شستا", "ذوب", "شبدر", "شبدر", "صبا", "وملت",
+                "فولاد", "شستا", "ذوب", "وملت", "فولاد", "شستا", "ذوب", "شبدر", "شبدر"]
 
         for i in list:
             update.message.reply_text('{} صف فروش ❌'.format(i), reply_markup=markup)
