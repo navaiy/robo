@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import _thread
+from sqlalchemy.orm import sessionmaker
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 from callback_query import *
 from callback_text import *
-from model import UserInfo, session
+from model import UserInfo, engine, Session, session
 
 proxy = {'proxy_url': 'http://127.0.0.1:13093/'}
 
@@ -19,22 +20,25 @@ updater.dispatcher.add_handler(CommandHandler('list_invite', list_invite))
 updater.dispatcher.add_handler(CallbackQueryHandler(query))
 updater.dispatcher.add_handler(MessageHandler(Filters.text, callback_menu))
 
+session = Session()
+
 
 # Check subscription time
-
-
-def check_time():
-    while True:
-        user = session.query(UserInfo).all()
-        for i in user:
-            if i.time_active > 0:
-                i.time_active -= 1
-                session.commit()
-        session.close()
-        time.sleep(60)
-
-
-_thread.start_new_thread(check_time, ())
+# def check_time():
+#     while True:
+#         time.sleep(60)
+#         user = session.query(UserInfo).all()
+#         for i in user:
+#             if i.time_active > 0:
+#                 i.time_active -= 1
+#                 session.commit()
+#                 if i.time_active == 0:
+#                     print("پایان اشتراک")
+#                     end_subscript(updater.dispatcher.bot, i.user_id)
+#         session.close()
+#
+#
+# _thread.start_new_thread(check_time, ())
 
 updater.start_polling()
 updater.idle()

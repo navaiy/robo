@@ -11,7 +11,7 @@ def callback_menu(update, context):
 
     if update.message.text == "برگشت":
         stop_event.set()
-        menu_alert(update, context)
+        menu_alert(update)
     # ===================================================================
     if update.message.text == '🔔 آلارم صف خرید':
         Thread(target=shopp_queue, args=(update, stop_event)).start()

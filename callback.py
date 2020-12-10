@@ -1,21 +1,29 @@
 import time
+
+import telegram
+from telegram.ext import CallbackContext
+
 from view import DataBase
 from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 
 
 def shopp_queue(update, stop_event):
     database = DataBase(update.message.chat.first_name, update.message.chat_id, update.message.text)
-    print(database.is_check_active())
     if database.is_check_active():
         key = [["برگشت"]]
         markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
-        list = ["صبا", "وملت", "فولاد", "شستا", "ذوب", "شبدر"]
+        list = ["صبا", "وملت", "فولاد", "شستا", "ذوب", "وملت", "فولاد", "شستا", "ذوب", "شبدر", "شبدر", "صبا", "وملت",
+                "فولاد", "شستا", "ذوب", "وملت", "فولاد", "شستا", "ذوب", "شبدر", "شبدر"]
 
         for i in list:
             update.message.reply_text('{} صف خرید ✅'.format(i), reply_markup=markup)
-            time.sleep(1)
-            if stop_event.is_set():
+            time.sleep(2)
+            if stop_event.is_set() or database.is_check_active() == False:
+                if database.is_check_active() == False:
+                    text = "متاسفانه اشتراک شما تموم شد. برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
+                    update.message.reply_text(text)
                 stop_event.clear()
+                menu_alert(update)
                 break
     else:
         text = "شما به دلیل فعال نبودن اشتراک اجازه استفاده ندارید برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
@@ -32,8 +40,12 @@ def sale_queue(update, stop_event):
         for i in list:
             update.message.reply_text('{} صف فروش ❌'.format(i), reply_markup=markup)
             time.sleep(1)
-            if stop_event.is_set():
+            if stop_event.is_set() or database.is_check_active() == False:
+                if database.is_check_active() == False:
+                    text = "متاسفانه اشتراک شما تموم شد. برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
+                    update.message.reply_text(text)
                 stop_event.clear()
+                menu_alert(update)
                 break
     else:
         text = "شما به دلیل فعال نبودن اشتراک اجازه استفاده ندارید برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
@@ -66,7 +78,7 @@ def queue_alert(update):
     update.message.reply_text(" لطفا انتخاب کنید ", reply_markup=markup)
 
 
-def menu_alert(update, context):
+def menu_alert(update):
     text = "منو"
     key = [["🔔 آلارم صف خرید", "🔔 آلارم صف فروش"], ['برگشت به منو']]
     markup = ReplyKeyboardMarkup(key, one_time_keyboard=True, resize_keyboard=True)
@@ -79,6 +91,10 @@ def menu(update, context):
     key = [["🔔 آلارم صف خرید و فروش"], ["🛒 خرید اشتراک", 'اشتراک رایگان']]
     markup = ReplyKeyboardMarkup(key, one_time_keyboard=True, resize_keyboard=True)
     update.message.reply_text(text, reply_markup=markup)
+
+
+def end_subscript(bot, chat_id):
+    bot.send_message(chat_id=chat_id, text="اتمام اشتراک")
 
 
 def start(update, context):

@@ -1,23 +1,24 @@
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey,DateTime
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship, sessionmaker, scoped_session
+from sqlalchemy.pool import SingletonThreadPool
 
 Base = declarative_base()
-engine = create_engine('sqlite:///sqlite.db', echo=False)
+engine = create_engine('sqlite:///sqlite.db',connect_args={'check_same_thread': False})
 
-Session = sessionmaker(bind=engine)
-session = Session()
+session = sessionmaker(bind=engine)
+Session = scoped_session(session)
 
 
 class UserInfo(Base):
     __tablename__ = "user_info"
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    user_id = Column(Integer)
-    nu_caller_m = Column(Integer,default=0)
-    nu_caller= Column(Integer)
+    user_id = Column(Integer, default=0)
+    nu_caller_m = Column(Integer, default=0)
+    nu_caller = Column(Integer)
     is_active = Column(Boolean)
-    time_active=Column(Integer,default=0)
+    time_active = Column(Integer, default=0)
 
     def __init__(self, name, user_id, nu_caller, is_active):
         self.name = name
@@ -39,11 +40,3 @@ class Invited(Base):
 
 
 Base.metadata.create_all(engine)
-
-
-
-
-
-
-
-
