@@ -338,11 +338,7 @@ class AlarmBorce:
             a = 1
             for id in div2:
                 try:
-                    # test
-                    if a == 4:
-                        break
                     new_symbols[id] = {**div1[id], **div2[id]}
-                    a += 1
                 except:
                     pass
 
