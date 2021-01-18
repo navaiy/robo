@@ -184,7 +184,7 @@ class AlarmBorce:
             link = new_symbols[symbol]['link']
 
             if a3 > m * 2 / 100:
-                BuyQueue(data, a1, a, "link", time.strftime("%H:%M:%S")).add()
+                BuyQueue(data, a1, a, link, time.strftime("%H:%M:%S")).add()
                 print(
                     Fore.GREEN + f' {str(a1) + " صف جدید"}{str(a) + " صف قدیم" : >20} {"[" + data + "]":>10}')
 
