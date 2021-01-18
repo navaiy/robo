@@ -1,2 +1,4 @@
 /venv
 .idea
+/borce
+geckodriver.exe

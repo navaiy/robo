@@ -16,7 +16,7 @@ def add_subscripi(user, session):
         user.time_active = add_time
     session.commit()
 
-    r = time.strptime(time.ctime(user.time_active), "%a %b %d %H:%M:%S %Y")
+    r = time.strptime(time.ctime(user.time_active), "%m/%d/%Y %H:%M:%S")
     r = time.strftime("%m/%d/%Y %H:%M:%S", r)
     return r
 

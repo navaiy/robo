@@ -1,58 +1,187 @@
-import time
+from time import sleep
 
-import telegram
-from telegram.ext import CallbackContext
+from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 
+from model_alarm import SaleQueue, session, GroupBuySale, BuyQueue, CapitaBuySale, HoghoghiBuySale
+
+# ======================== part ==========================
+# صف خرید در حال ریختن
 from view import DataBase
-from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 
 
-def shopp_queue(update, stop_event):
+def buy_queue(update, stop_event):
     database = DataBase(update.message.chat.first_name, update.message.chat_id, update.message.text)
-    if database.is_check_active():
+    if True:  # database.is_check_active()
         key = [["برگشت"]]
         markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
-        list = ["صبا", "وملت", "فولاد", "شستا", "ذوب", "وملت", "فولاد", "شستا", "ذوب", "شبدر", "شبدر", "صبا", "وملت",
-                "فولاد", "شستا", "ذوب", "وملت", "فولاد", "شستا", "ذوب", "شبدر", "شبدر"]
-
-        for i in list:
-            update.message.reply_text('{} صف خرید ✅'.format(i), reply_markup=markup)
-            time.sleep(2)
-            if stop_event.is_set() or database.is_check_active() == False:
-                if database.is_check_active() == False:
-                    text = "متاسفانه اشتراک شما تموم شد. برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
-                    update.message.reply_text(text)
+        # list = ["صبا", "وملت", "فولاد", "شستا", "ذوب", "وملت", ]
+        while True:
+            text = "🔔❌ کاهش 50 درصد #صف_خرید ❌🔔\n"
+            list = session.query(BuyQueue).all()
+            session.close()
+            for i in list:
+                text += f"""
+                        ####################
+#{i.symbol}
+حجم صف خرید قدیم : {i.old_queue}
+حجم صف خرید جدید : {i.new_queue}
+<a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
+🕘 {i.time}"""
+            if stop_event.is_set():  # or database.is_check_active() == False
+                # if database.is_check_active() == False:
+                #     text = "متاسفانه اشتراک شما تموم شد. برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
+                #     update.message.reply_text(text)
                 stop_event.clear()
-                menu_alert(update)
                 break
+            update.message.reply_text(text,ParseMode.HTML, reply_markup=markup)
+            sleep(0.9)
     else:
         text = "شما به دلیل فعال نبودن اشتراک اجازه استفاده ندارید برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
         update.message.reply_text(text)
 
 
+# صف فروش در حال ریختن
 def sale_queue(update, stop_event):
     database = DataBase(update.message.chat.first_name, update.message.chat_id, update.message.text)
-    if database.is_check_active():
+    if True:  # database.is_check_active()
         key = [["برگشت"]]
         markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
-        list = ["صبا", "وملت", "فولاد", "شستا", "ذوب", "وملت", "فولاد", "شستا", "ذوب", "شبدر", "شبدر", "صبا", "وملت",
-                "فولاد", "شستا", "ذوب", "وملت", "فولاد", "شستا", "ذوب", "شبدر", "شبدر"]
+        # list = ["صبا", "وملت", "فولاد", "شستا", "ذوب", "وملت", "فولاد", "شستا", "صبا", "وملت", "فولاد", "شستا", "ذوب",
+        #         "وملت", "فولاد", "شستا", "ذوب", "ذوب", "صبا", "وملت", "فولاد", "شستا", "ذوب", "وملت", "فولاد", "شستا",
+        #         "صبا", "وملت", "فولاد", "شستا", "ذوب"]
 
-        for i in list:
-            update.message.reply_text('{} صف فروش ❌'.format(i), reply_markup=markup)
-            time.sleep(1)
-            if stop_event.is_set() or database.is_check_active() == False:
-                if database.is_check_active() == False:
-                    text = "متاسفانه اشتراک شما تموم شد. برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
-                    update.message.reply_text(text)
+        while True:
+            text = "🔔✅ کاهش 20 درصدی #صف_فروش ✅🔔\n"
+            list = session.query(SaleQueue).all()
+            session.close()
+            for i in list:
+                text += f"""
+                        ####################
+#{i.symbol}
+حجم صف فروش قدیم : {i.old_queue}
+حجم صف فروش جدید : {i.new_queue}
+<a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
+🕘 {i.time}"""
+            if stop_event.is_set():  # or database.is_check_active() == False
+                # if database.is_check_active() == False:
+                #     text = "متاسفانه اشتراک شما تموم شد. برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
+                #     update.message.reply_text(text)
                 stop_event.clear()
-                menu_alert(update)
+                session.close()
                 break
+            sleep(0.9)
+            update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
     else:
         text = "شما به دلیل فعال نبودن اشتراک اجازه استفاده ندارید برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
         update.message.reply_text(text)
 
 
+# خرید و فروش گروهی
+def group_buy_sale(update, stop_event):
+    database = DataBase(update.message.chat.first_name, update.message.chat_id, update.message.text)
+    if True:  # database.is_check_active()
+        key = [["برگشت"]]
+        markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
+        # list = ["صبا", "وملت", "فولاد", "شستا", ]
+
+        while True:
+            text = "🔔 خرید و فروش گروهی حقیقی 🔔\n"
+            list = session.query(GroupBuySale).all()
+            session.close()
+            for i in list:
+                text += f"""
+                    ####################
+وضعیت {i.status} برای نماد #{i.symbol}
+تعداد {i.status}  : {i.number_buy_or_sale}
+هر کد حقیقی : {i.each_haghighi}
+ارزش {i.status} : {i.value_buy_or_sale}
+قیمت معامله : {i.price_and_percentage}
+<a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
+🕘 {i.time}"""
+            if stop_event.is_set():  # or database.is_check_active() == False
+                # if database.is_check_active() == False:
+                #     text = "متاسفانه اشتراک شما تموم شد. برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
+                #     update.message.reply_text(text)
+                stop_event.clear()
+
+                break
+            update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
+            sleep(0.9)
+    else:
+        text = "شما به دلیل فعال نبودن اشتراک اجازه استفاده ندارید برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
+        update.message.reply_text(text)
+
+
+# تغییر سرانه خریدار یا فروشنده حقیقی
+def capita_buy_sale(update, stop_event):
+    database = DataBase(update.message.chat.first_name, update.message.chat_id, update.message.text)
+    if True:  # database.is_check_active()
+        key = [["برگشت"]]
+        markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
+        # list = ["صبا", "وملت", "فولاد", "شستا", ]
+        while True:
+            list = session.query(CapitaBuySale).all()
+            session.close()
+            text = "🔔 تغییر سرانه خریدار یا فروشنده حقیقی 🔔\n"
+            for i in list:
+                text += f"""
+                    ####################
+وضعیت سرانه {i.status} برای نماد #{i.symbol}
+سرانه خریدار قدیم  : {i.old_buy}
+سرانه فروشنده قدیم : {i.old_sale}
+سرانه خریدار جدید : {i.new_buy}
+سرانه فروشنده جدید : {i.new_sale}
+درصد تغییر سرانه خریدار به فروشنده : {i.percentage_change_buy_sale}
+قیمت معامله و درصد : {i.percentage_change}
+<a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
+🕘 {i.time}"""
+            if stop_event.is_set():  # or database.is_check_active() == False
+                # if database.is_check_active() == False:
+                #     text = "متاسفانه اشتراک شما تموم شد. برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
+                #     update.message.reply_text(text)
+                stop_event.clear()
+                break
+            update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
+            sleep(0.9)
+    else:
+        text = "شما به دلیل فعال نبودن اشتراک اجازه استفاده ندارید برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
+        update.message.reply_text(text)
+
+
+# خرید و فروش سنگین حقوقی
+def hoghoghi_buy_sale(update, stop_event):
+    database = DataBase(update.message.chat.first_name, update.message.chat_id, update.message.text)
+    if True:  # database.is_check_active()
+        key = [["برگشت"]]
+        markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
+        # list = ["صبا", "وملت", "فولاد", "شستا", ]
+        while True:
+            list = session.query(HoghoghiBuySale).all()
+            session.close()
+            text = "🔔 خرید و فروش سنگین حقوقی 🔔\n"
+            for i in list:
+                text += f"""
+                    ####################
+وضعیت {i.status} برای نماد #{i.symbol}
+ارزش {i.status} : {i.value_buy_or_sale}
+قیمت معامله و درصد : {i.price_and_percentage}
+<a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
+🕘 {i.time}"""
+            if stop_event.is_set():  # or database.is_check_active() == False
+                # if database.is_check_active() == False:
+                #     text = "متاسفانه اشتراک شما تموم شد. برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
+                #     update.message.reply_text(text)
+                stop_event.clear()
+
+                break
+            update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
+            sleep(0.9)
+    else:
+        text = "شما به دلیل فعال نبودن اشتراک اجازه استفاده ندارید برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
+        update.message.reply_text(text)
+
+
+# ==================================================
 def purchase_subscrip(update):
     key = [
         [InlineKeyboardButton(" اشتراک یک ماهه 👍 ", callback_data='اشتراک یک ماهه'),
@@ -74,14 +203,16 @@ def free_subscription(update):
 
 
 def queue_alert(update):
-    key = [["🔔 آلارم صف خرید", "🔔 آلارم صف فروش"], ['برگشت به منو']]
+    key = [["🔔 آلارم صف خرید", "🔔 آلارم صف فروش"], ['🔔 تغییر سرانه خریدار یا فروشنده حقیقی'],
+           ['🔔 آلارم خرید و فروش گروهی حقیقی'], ['🔔 خرید و فروش سنگین حقوقی'], ['برگشت به منو']]
     markup = ReplyKeyboardMarkup(key, one_time_keyboard=True, resize_keyboard=True)
     update.message.reply_text(" لطفا انتخاب کنید ", reply_markup=markup)
 
 
 def menu_alert(update):
     text = "منو"
-    key = [["🔔 آلارم صف خرید", "🔔 آلارم صف فروش"], ['برگشت به منو']]
+    key = [["🔔 آلارم صف خرید", "🔔 آلارم صف فروش"], ['🔔 تغییر سرانه خریدار یا فروشنده حقیقی'],
+           ['🔔 آلارم خرید و فروش گروهی حقیقی'], ['🔔 خرید و فروش سنگین حقوقی'], ['برگشت به منو']]
     markup = ReplyKeyboardMarkup(key, one_time_keyboard=True, resize_keyboard=True)
     update.message.reply_text(text, reply_markup=markup)
 

@@ -1,5 +1,6 @@
 import threading
 from threading import Thread
+
 from callback import *
 
 stop_event = threading.Event()
@@ -14,10 +15,19 @@ def callback_menu(update, context):
         menu_alert(update)
     # ===================================================================
     if update.message.text == '🔔 آلارم صف خرید':
-        Thread(target=shopp_queue, args=(update, stop_event)).start()
+        Thread(target=buy_queue, args=(update, stop_event)).start()
 
     if update.message.text == '🔔 آلارم صف فروش':
         Thread(target=sale_queue, args=(update, stop_event)).start()
+
+    if update.message.text == '🔔 آلارم خرید و فروش گروهی حقیقی':
+        Thread(target=group_buy_sale, args=(update, stop_event)).start()
+
+    if update.message.text == '🔔 تغییر سرانه خریدار یا فروشنده حقیقی':
+        Thread(target=capita_buy_sale, args=(update, stop_event)).start()
+
+    if update.message.text == '🔔 خرید و فروش سنگین حقوقی':
+        Thread(target=hoghoghi_buy_sale, args=(update, stop_event)).start()
     # ===================================================================
     if update.message.text == "🔔 آلارم صف خرید و فروش":
         queue_alert(update)

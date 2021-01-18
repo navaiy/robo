@@ -9,7 +9,6 @@ engine = create_engine('sqlite:///sqlite.db',connect_args={'check_same_thread': 
 session = sessionmaker(bind=engine)
 Session = scoped_session(session)
 
-
 class UserInfo(Base):
     __tablename__ = "user_info"
     id = Column(Integer, primary_key=True)
