@@ -3,6 +3,7 @@ from threading import Thread
 
 from colorama import Fore
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
 
 from model_alarm import BuyQueue, SaleQueue, HoghoghiBuySale, CapitaBuySale, GroupBuySale, session
 
@@ -12,8 +13,10 @@ class AlarmBorce:
     script1 = ''
 
     def __init__(self):
-        self.driver1 = webdriver.Firefox()
-        self.driver2 = webdriver.Firefox()
+        options = Options()
+        options.add_argument('--headless')
+        self.driver1 = webdriver.Firefox(options=options)
+        self.driver2 = webdriver.Firefox(options=options)
         self._config(self.driver1, 1)
         self._config(self.driver2, 2)
 
@@ -76,7 +79,6 @@ class AlarmBorce:
         driver.find_element_by_xpath('/html/body/div[6]/div[1]/a[5]').click()
         time.sleep(1)
         driver.find_element_by_css_selector('div.SlideItem:nth-child(5)').click()
-        print('ok')
 
         ##  FILTER SETTING ##
         def setup(css_selector):
@@ -111,7 +113,7 @@ class AlarmBorce:
         except Exception as e:
             pass
 
-        print("market watch ready!")
+        print("Ready to read...")
         time.sleep(1)
         if n == 1:
             # yesterdayPrice: columns[5].innerHTML,
@@ -173,8 +175,8 @@ class AlarmBorce:
     # 1-1-آلارم صف خرید نزدیک به ریختن
     def _buy_queue(self, new_symbols, old_symbols):
         for symbol in new_symbols:
-            a = int(new_symbols[symbol]['vol_qu_buy'].replace(',', ''))  # حجم اولین صف فروش
-            a1 = int(old_symbols[symbol]['vol_qu_buy'].replace(',', ''))  # حجم اولین صف فروش بعد ده ثانیه
+            a = int(old_symbols[symbol]['vol_qu_buy'].replace(',', ''))  # حجم اولین صف فروش
+            a1 = int(new_symbols[symbol]['vol_qu_buy'].replace(',', ''))  # حجم اولین صف فروش بعد ده ثانیه
             a3 = abs(a - a1)  # اختلاف حجم صف فروش در ده ثانیه
 
             m = new_symbols[symbol]['base_vol']
@@ -186,13 +188,13 @@ class AlarmBorce:
             if a3 > m * 2 / 100:
                 BuyQueue(data, a1, a, link, time.strftime("%H:%M:%S")).add()
                 print(
-                    Fore.GREEN + f' {str(a1) + " صف جدید"}{str(a) + " صف قدیم" : >20} {"[" + data + "]":>10}')
+                    Fore.GREEN + f'{time.strftime("%H:%M:%S")} {str(a1) + " صف جدید": >20}{str(a) + " صف قدیم" : >20} {"[" + data + "]":>10}')
 
     # 0-1-آلارم صف فروش نزدیک به ریختن
     def _sale_queue(self, new_symbols, old_symbols):
         for symbol in new_symbols:
-            a = int(new_symbols[symbol]['vol_qu_sell'].replace(',', ''))  # حجم اولین صف فروش
-            a1 = int(old_symbols[symbol]['vol_qu_sell'].replace(',', ''))  # حجم اولین صف فروش بعد ده ثانیه
+            a = int(old_symbols[symbol]['vol_qu_sell'].replace(',', ''))  # حجم اولین صف فروش
+            a1 = int(new_symbols[symbol]['vol_qu_sell'].replace(',', ''))  # حجم اولین صف فروش بعد ده ثانیه
             a3 = abs(a - a1)  # اختلاف حجم صف فروش در ده ثانیه
 
             m = new_symbols[symbol]['base_vol']
@@ -202,23 +204,24 @@ class AlarmBorce:
             link = new_symbols[symbol]['link']
 
             if a3 > m * 2 / 100:
+                SaleQueue(data, a1, a, link, time.strftime("%H:%M:%S")).add()
                 print(
-                    Fore.RED + f' {str(a1) + " صف جدید"}{str(a) + " صف قدیم" : >20} {"[" + data + "]":>10}')
+                    Fore.RED + f' {time.strftime("%H:%M:%S")}{str(a1) + " صف جدید": >20}{str(a) + " صف قدیم" : >20} {"[" + data + "]":>10}')
 
     # 3- آلارم خرید و فروش گروهی
     def _group_buy_sale(self, new_symbols, old_symbols):
         for symbol in new_symbols:
-            bu1 = int(new_symbols[symbol]['haghighiBuy'].replace(',', ''))  # حجم خرید حقیقی
-            se1 = int(new_symbols[symbol]['haghighiSellVol'].replace(',', ''))  # حجم فروش حقیقی
+            bu1 = int(old_symbols[symbol]['haghighiBuy'].replace(',', ''))  # حجم خرید حقیقی
+            se1 = int(old_symbols[symbol]['haghighiSellVol'].replace(',', ''))  # حجم فروش حقیقی
 
-            nbu1 = int(new_symbols[symbol]['haghighiBuyNum'].replace(',', ''))  # تعداد معاملات خرید حقیقی
-            nse1 = int(new_symbols[symbol]['haghighiSellNum'].replace(',', ''))  # تعداد معلاملات فروش حقیقی
+            nbu1 = int(old_symbols[symbol]['haghighiBuyNum'].replace(',', ''))  # تعداد معاملات خرید حقیقی
+            nse1 = int(old_symbols[symbol]['haghighiSellNum'].replace(',', ''))  # تعداد معلاملات فروش حقیقی
             # بعد ده ثانیه
-            bu2 = int(old_symbols[symbol]['haghighiBuy'].replace(',', ''))  # حجم خرید حقیقی
-            se2 = int(old_symbols[symbol]['haghighiSellVol'].replace(',', ''))  # حجم فروش حقیقی
+            bu2 = int(new_symbols[symbol]['haghighiBuy'].replace(',', ''))  # حجم خرید حقیقی
+            se2 = int(new_symbols[symbol]['haghighiSellVol'].replace(',', ''))  # حجم فروش حقیقی
 
-            nbu2 = int(old_symbols[symbol]['haghighiBuyNum'].replace(',', ''))  # تعداد معاملات خرید حقیقی
-            nse2 = int(old_symbols[symbol]['haghighiSellNum'].replace(',', ''))  # تعداد معلاملات فروش حقیقی
+            nbu2 = int(new_symbols[symbol]['haghighiBuyNum'].replace(',', ''))  # تعداد معاملات خرید حقیقی
+            nse2 = int(new_symbols[symbol]['haghighiSellNum'].replace(',', ''))  # تعداد معلاملات فروش حقیقی
 
             bu3 = abs(bu1 - bu2)
             se3 = abs(se1 - se2)
@@ -241,28 +244,28 @@ class AlarmBorce:
                     GroupBuySale(data, "خرید", nbu2, each_haghighi_buy, bu3, price_and_percentage, link, time.strftime(
                         "%H:%M:%S")).add()
                     print(
-                        Fore.GREEN + f'{str(bu3 / nbu3) + " میزان خرید هر خریدار"} {str(nbu3) + "تعداد خریدار": >20}{str(bu3) + " میزان خرید" : >20}{"[" + data + "]":>10}')
+                        Fore.GREEN + f'{time.strftime("%H:%M:%S") + "زمان"}{str(bu3 / nbu3) + " میزان خرید هر خریدار": >20} {str(nbu3) + "تعداد خریدار": >20}{str(bu3) + " میزان خرید" : >20}{"[" + data + "]":>10}')
 
                 if float(se3 / nse3) > m * 1 / 100:
                     GroupBuySale(data, "فروش", nse2, each_haghighi_sel, se3, price_and_percentage, link, time.strftime(
                         "%H:%M:%S")).add()
                     print(
-                        Fore.RED + f'{str(se3 / nse3) + " میزان فروش هر فروشنده"} {str(nse3) + " تعداد فروشنده": >20}{str(se3) + " میزان فروش" : >20}{"[" + data + "]":>10}')
+                        Fore.RED + f'{time.strftime("%H:%M:%S") + "زمان"}{str(se3 / nse3) + " میزان فروش هر فروشنده": >20} {str(nse3) + " تعداد فروشنده": >20}{str(se3) + " میزان فروش" : >20}{"[" + data + "]":>10}')
             except:
                 pass
 
     # 2- آلارم تغییر سرانه قدرت خریدار و فروشنده
     def _capita_buy_sale(self, new_symbols, old_symbols):
         for symbol in new_symbols:
-            bu1 = int(new_symbols[symbol]['haghighiBuy'].replace(',', ''))  # حجم خرید حقیقی
-            nbu1 = int(new_symbols[symbol]['haghighiBuyNum'].replace(',', ''))  # تعداد معاملات خرید حقیقی
-            se1 = int(new_symbols[symbol]['haghighiSellVol'].replace(',', ''))  # حجم فروش حقیقی
-            nse1 = int(new_symbols[symbol]['haghighiSellNum'].replace(',', ''))  # تعداد معاملات فروش حقیقی
+            bu1 = int(old_symbols[symbol]['haghighiBuy'].replace(',', ''))  # حجم خرید حقیقی
+            nbu1 = int(old_symbols[symbol]['haghighiBuyNum'].replace(',', ''))  # تعداد معاملات خرید حقیقی
+            se1 = int(old_symbols[symbol]['haghighiSellVol'].replace(',', ''))  # حجم فروش حقیقی
+            nse1 = int(old_symbols[symbol]['haghighiSellNum'].replace(',', ''))  # تعداد معاملات فروش حقیقی
 
-            bu2 = int(old_symbols[symbol]['haghighiBuy'].replace(',', ''))  # حجم خرید حقیقی
-            nbu2 = int(old_symbols[symbol]['haghighiBuyNum'].replace(',', ''))  # تعداد معاملات خرید حقیقی
-            se2 = int(old_symbols[symbol]['haghighiSellVol'].replace(',', ''))  # حجم فروش حقیقی
-            nse2 = int(old_symbols[symbol]['haghighiSellNum'].replace(',', ''))  # تعداد معاملات فروش حقیقی
+            bu2 = int(new_symbols[symbol]['haghighiBuy'].replace(',', ''))  # حجم خرید حقیقی
+            nbu2 = int(new_symbols[symbol]['haghighiBuyNum'].replace(',', ''))  # تعداد معاملات خرید حقیقی
+            se2 = int(new_symbols[symbol]['haghighiSellVol'].replace(',', ''))  # حجم فروش حقیقی
+            nse2 = int(new_symbols[symbol]['haghighiSellNum'].replace(',', ''))  # تعداد معاملات فروش حقیقی
 
             data = new_symbols[symbol]['symbol']
             lastPrice = new_symbols[symbol]['lastPrice']  # قیمت اخرین معامله
@@ -276,25 +279,25 @@ class AlarmBorce:
                                   percentage_change_buy_sale, f"{lastPrice} ({lastPercent})", link,
                                   time.strftime("%H:%M:%S")).add()
                     print(
-                        Fore.GREEN + f'{str(round(se1 / nse1)) + " سرانه فروش قدیم"}{str(round(bu1 / nbu1)) + " سرانه خرید قدیم":>25}{str(round(se2 / nse2)) + " سرانه فروش جدید":>25}{str(round(bu2 / nbu2)) + " سرانه خرید جدید" : >25}{" سرانه خریدار : وضعیت ":>25}{"[" + data + "]":>10}')
+                        Fore.GREEN + f'{time.strftime("%H:%M:%S")}{str(round(se1 / nse1)) + " سرانه فروش قدیم":>25}{str(round(bu1 / nbu1)) + " سرانه خرید قدیم":>25}{str(round(se2 / nse2)) + " سرانه فروش جدید":>25}{str(round(bu2 / nbu2)) + " سرانه خرید جدید" : >25}{" سرانه خریدار : وضعیت ":>25}{"[" + data + "]":>10}')
 
                 if ((se2 / nse2) / (bu2 / nbu2)) > 2 * ((se1 / nse1) / (bu1 / nbu1)):
                     CapitaBuySale(data, "فروش", bu1 / nbu1, se1 / nse1, bu2 / nbu2, se2 / nse2,
                                   percentage_change_buy_sale, f"{lastPrice} ({lastPercent})", link,
                                   time.strftime("%H:%M:%S")).add()
                     print(
-                        Fore.RED + f'{str(round(se1 / nse1)) + " سرانه فروش قدیم"}{str(round(bu1 / nbu1)) + " سرانه خرید قدیم":>25}{str(round(se2 / nse2)) + " سرانه فروش جدید":>25}{str(round(bu2 / nbu2)) + " سرانه خرید جدید" : >25}{"سرانه فروشند : وضعیت":>25}{"[" + data + "]":>10}')
+                        Fore.RED + f'{time.strftime("%H:%M:%S")}{str(round(se1 / nse1)) + " سرانه فروش قدیم":>25}{str(round(bu1 / nbu1)) + " سرانه خرید قدیم":>25}{str(round(se2 / nse2)) + " سرانه فروش جدید":>25}{str(round(bu2 / nbu2)) + " سرانه خرید جدید" : >25}{"سرانه فروشند : وضعیت":>25}{"[" + data + "]":>10}')
             except:
                 pass
 
     # 4- آلارم خرید و فروش سنگین حقوقی
     def _hoghoghi_buy_sale(self, new_symbols, old_symbols):
         for symbol in new_symbols:
-            bu1 = int(new_symbols[symbol]['hoghighiBuyVol'].replace(',', ''))  # حجم خرید حقوقی
-            se1 = int(new_symbols[symbol]['hoghoghiSellVol'].replace(',', ''))  # حجم  فروش حقوقی
+            bu1 = int(old_symbols[symbol]['hoghighiBuyVol'].replace(',', ''))  # حجم خرید حقوقی
+            se1 = int(old_symbols[symbol]['hoghoghiSellVol'].replace(',', ''))  # حجم  فروش حقوقی
 
-            bu2 = int(old_symbols[symbol]['hoghighiBuyVol'].replace(',', ''))  # حجم خرید حقوقی
-            se2 = int(old_symbols[symbol]['hoghoghiSellVol'].replace(',', ''))  # حجم  فروش حقوقی
+            bu2 = int(new_symbols[symbol]['hoghighiBuyVol'].replace(',', ''))  # حجم خرید حقوقی
+            se2 = int(new_symbols[symbol]['hoghoghiSellVol'].replace(',', ''))  # حجم  فروش حقوقی
 
             se3 = abs(se1 - se2)
             bu3 = abs(bu1 - bu2)
@@ -306,18 +309,19 @@ class AlarmBorce:
             m = new_symbols[symbol]['base_vol']
             m = int(m.split(':')[2].replace(',', ''))  # حجم مبنا  # حجم مبنا
 
+
             if bu3 > (m * 1 / 10):
                 HoghoghiBuySale(data, "خرید", bu3, f"{lastPrice} ({lastPercent})", link,
                                 time.strftime("%H:%M:%S")).add()
 
                 print(
-                    Fore.GREEN + f' {str(bu3) + " حجم خرید حقوقی"}{"[" + data + "]":>10}')
+                    Fore.GREEN + f'{time.strftime("%H:%M:%S")} {str(bu3) + " حجم خرید حقوقی":>10}{"[" + data + "]":>10}')
 
             if se3 > (m * 1 / 10):
                 HoghoghiBuySale(data, "خرید", se3, f"{lastPrice} ({lastPercent})", link,
                                 time.strftime("%H:%M:%S")).add()
                 print(
-                    Fore.RED + f' {str(se3) + " حجم فروش حقوقی"}{"[" + data + "]":>10}')
+                    Fore.RED + f'{time.strftime("%H:%M:%S")} {str(se3) + " حجم فروش حقوقی":>10}{"[" + data + "]":>10}')
 
     def _clean_table(self):
         session.query(SaleQueue).delete()
@@ -328,26 +332,29 @@ class AlarmBorce:
         session.commit()
 
     def main(self):
-        time_queue = 1
-        for i in range(2000):
+        time_queue = 0
+        i = 0
+        t_e = 12 * 3600 + 30 * 60
+        t_s = 9 * 3600
+        t_n = time.localtime().tm_hour * 3600 + time.localtime().tm_min * 60 + time.localtime().tm_sec
+        while t_s < t_n and t_e > t_n:
             all = time.time()
             div1 = self.driver1.execute_script(self.script1)
             div2 = self.driver2.execute_script(self.script2)
+            sc = time.time() - all
             # اضافه کردن اطلاعات سه ستون به درایور دیگه
             new_symbols = {}
-            a = 1
+
             for id in div2:
                 try:
                     new_symbols[id] = {**div1[id], **div2[id]}
                 except:
                     pass
-
             if i == 0:
                 old_symbols = new_symbols
-            # claen database
-            self._clean_table()
+            pro = time.time()
             try:
-                print(Fore.WHITE + "-------------_group_buy_sale--------------------")
+                print(Fore.WHITE + "-------------group_buy_sale--------------------")
                 self._group_buy_sale(new_symbols, old_symbols)
                 print(Fore.WHITE + "-------------_capita_buy_sale--------------------")
                 self._capita_buy_sale(new_symbols, old_symbols)
@@ -362,14 +369,26 @@ class AlarmBorce:
             except Exception as e:
                 print(Fore.RED + f"-----------{e}--------------")
             session.commit()
-            old_symbols = new_symbols
-            print(
-                Fore.RED + f"___________________  all {time.time() - all} seconds____________")
+            tpro = time.time() - pro
             time.sleep(abs(1 - (time.time() - all)))
             time_queue += 1
+            t_n = time.localtime().tm_hour * 3600 + time.localtime().tm_min * 60 + time.localtime().tm_sec
+            i += 1
+            old_symbols = new_symbols
+            print(Fore.CYAN + f"== all {time.time() - all} ==sc {sc} ==pro {tpro}========")
+
+        # claen database
+        if 0 < t_n and 180 > t_n:
+            self._clean_table()
+            print("Clean to database...")
 
     def run(self):
-        Thread(target=self.main, args=()).start()
+        def min():
+            while True:
+                time.sleep(60)
+                self.main()
+
+        Thread(target=min, args=()).start()
 
 # a = AlarmBorce()
 # a.run()

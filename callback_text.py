@@ -1,33 +1,39 @@
-import threading
-from threading import Thread
-
 from callback import *
 
-stop_event = threading.Event()
+dict = {}
 
 
 def callback_menu(update, context):
+    id = update.message.chat_id
+    if not id in dict:
+        dict[id] = Alram()
+    alarm = dict[id]
+    # =================================================================
     if update.message.text == "برگشت به منو":
         menu(update, context)
 
     if update.message.text == "برگشت":
-        stop_event.set()
+        alarm.stop()
         menu_alert(update)
     # ===================================================================
     if update.message.text == '🔔 آلارم صف خرید':
-        Thread(target=buy_queue, args=(update, stop_event)).start()
+        alarm.run(alarm.buy_queue, update)
 
     if update.message.text == '🔔 آلارم صف فروش':
-        Thread(target=sale_queue, args=(update, stop_event)).start()
+        alarm.run(alarm.sale_queue, update)
 
     if update.message.text == '🔔 آلارم خرید و فروش گروهی حقیقی':
-        Thread(target=group_buy_sale, args=(update, stop_event)).start()
+        alarm.run(alarm.group_buy_sale, update)
 
     if update.message.text == '🔔 تغییر سرانه خریدار یا فروشنده حقیقی':
-        Thread(target=capita_buy_sale, args=(update, stop_event)).start()
+        alarm.run(alarm.capita_buy_sale, update)
 
     if update.message.text == '🔔 خرید و فروش سنگین حقوقی':
-        Thread(target=hoghoghi_buy_sale, args=(update, stop_event)).start()
+        alarm.run(alarm.hoghoghi_buy_sale, update)
+
+    if update.message.text == '🔔 نمایش همه':
+        alarm.run(alarm.all_part, update)
+
     # ===================================================================
     if update.message.text == "🔔 آلارم صف خرید و فروش":
         queue_alert(update)

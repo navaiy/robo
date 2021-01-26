@@ -1,4 +1,8 @@
+import time
+from multiprocessing import Lock
+from threading import Thread
 import pandas
+from colorama import Fore
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -30,8 +34,6 @@ class BuyQueue(Base):
     def add(self):
         a = BuyQueue(self.symbol, self.new_queue, self.old_queue, self.link, self.time)
         session.add(a)
-        # session.commit()
-        # session.close()
 
 
 # 0-1-آلارم صف فروش نزدیک به ریختن
@@ -50,14 +52,10 @@ class SaleQueue(Base):
         self.old_queue = old_queue
         self.link = link
         self.time = time
-        # self._add(symbol, new_queue, old_queue, link, time)
 
     def add(self):
-        # check exist
         a = SaleQueue(self.symbol, self.new_queue, self.old_queue, self.link, self.time)
         session.add(a)
-        # session.commit()
-        # session.close()
 
 
 # 3- آلارم خرید و فروش گروهی
@@ -156,45 +154,47 @@ class HoghoghiBuySale(Base):
 Base.metadata.create_all(engine)
 
 
-# start_time = time.time()
 
-# print("ok")
-
-
-def w():
-    semega = pandas.read_excel('id_stocks.xls')
-    for i in range(10):
-        s = semega['symbol'][i]
-        SaleQueue(s, 1, 2, "http://example.com/", '22:22').add()
-        BuyQueue(s, 1, 2, "http://example.com/", '22:22').add()
-        GroupBuySale(s, "خرید", 1, 2, 3, 4, "http://example.com/", '22:22').add()
-        CapitaBuySale(s, "خریدار", 1, 2, 3, 4, 5, 6, "http://example.com/", '22:22').add()
-        HoghoghiBuySale(s, "خرید", 1, 2, 3, 4, "http://example.com/", '22:22').add()
-    session.commit()
-    session.close()
-    # session.close()
-
-
-# w()
-
-
-def r():
-    list = session.query(SaleQueue).all()
-    session.close()
-    for a in list:
-        print(a.symbol)
-
-    # r()
-
-
-# session.query(SaleQueue).delete()
-# session.query(BuyQueue).delete()
-# session.query(CapitaBuySale).delete()
-# session.query(HoghoghiBuySale).delete()
-# session.query(GroupBuySale).delete()
-# session.commit()
+# look = Lock()
 #
+#
+# def w():
+#     semega = pandas.read_excel('id_stocks.xls')
+#     while True:
+#         for i in range(2):
+#             s = semega['symbol'][i]
+#             SaleQueue(s, 1, 2, "http://example.com/", time.strftime('%H:%M:%S')).add()
+#             # BuyQueue(s, 1, 2, "http://example.com/", time.strftime('%H:%M:%S')).add()
+#             # GroupBuySale(s, "خرید", 1, 2, 3, 4, "http://example.com/", time.strftime('%H:%M:%S')).add()
+#             # CapitaBuySale(s, "خریدار", 1, 2, 3, 4, 5, 6, "http://example.com/", time.strftime('%H:%M:%S')).add()
+#             # HoghoghiBuySale(s, "خرید", 1, 2, "http://example.com/", time.strftime('%H:%M:%S')).add()
+#             # with look:
+#             # print(Fore.GREEN + f"add {s} in {time.strftime('%H:%M:%S')}")
+#         session.commit()
+#         time.sleep(1)
+#     # session.close()
+#
+#
+# # w()
+#
+#
+# def r():
+#     i = 0
+#     while True:
+#         time_start = time.time()
+#         last_old = session.query(SaleQueue).count()
+#         time.sleep(1)
+#         last_new = session.query(SaleQueue).count()
+#         if last_old < last_new:
+#             list = session.query(SaleQueue).all()[last_old:]
+#             with look:
+#                 for i in list:
+#                     print(Fore.CYAN + f"{i.time} {i.symbol:>10} {i.id:>5}")
+#         session.close()
+#         # print(f'=========new{last_new} old{last_old} time{time.time()-time_start}')
+
+
 # Thread(target=w, args=()).start()
-# # time.sleep(1)
+# time.sleep(10)
 # Thread(target=r, args=()).start()
 # print("--- %s seconds ---" % (time.time() - start_time))

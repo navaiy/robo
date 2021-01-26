@@ -2,3 +2,5 @@
 .idea
 /borce
 geckodriver.exe
+sqlite.db
+database_alarm.db
