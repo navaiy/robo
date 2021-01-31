@@ -2,7 +2,6 @@
 from multiprocessing import Process
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
-
 from callback_query import *
 from callback_text import *
 from seleniu import AlarmBorce
@@ -15,7 +14,7 @@ proxy = {'proxy_url': 'http://127.0.0.1:13093/'}
 
 main_token = '1485237615:AAHIguavJ44PfFOEnn7Vnn8CBQeO0lWyESo'
 second_token = '1216019804:AAEnT-e_6rMrN8vnnutpx_TlJbzEX2oY2Ok'
-updater = Updater(second_token)
+updater = Updater(main_token)
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('link', link))

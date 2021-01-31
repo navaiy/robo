@@ -1,8 +1,3 @@
-import time
-from multiprocessing import Lock
-from threading import Thread
-import pandas
-from colorama import Fore
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -23,16 +18,18 @@ class BuyQueue(Base):
     old_queue = Column(Integer, default=0)
     link = Column(String)
     time = Column(String)
+    base_vol = Column(String)
 
-    def __init__(self, symbol, new_queue, old_queue, link, time):
+    def __init__(self, symbol, new_queue, old_queue, link, time,base_vol):
         self.symbol = symbol
         self.new_queue = new_queue
         self.old_queue = old_queue
         self.link = link
         self.time = time
+        self.base_vol=base_vol
 
     def add(self):
-        a = BuyQueue(self.symbol, self.new_queue, self.old_queue, self.link, self.time)
+        a = BuyQueue(self.symbol, self.new_queue, self.old_queue, self.link, self.time,self.base_vol)
         session.add(a)
 
 
@@ -45,16 +42,17 @@ class SaleQueue(Base):
     old_queue = Column(Integer, default=0)
     link = Column(String)
     time = Column(String)
+    base_vol = Column(String)
 
-    def __init__(self, symbol, new_queue, old_queue, link, time):
+    def __init__(self, symbol, new_queue, old_queue, link, time,base_vol):
         self.symbol = symbol
         self.new_queue = new_queue
         self.old_queue = old_queue
         self.link = link
         self.time = time
-
+        self.base_vol=base_vol
     def add(self):
-        a = SaleQueue(self.symbol, self.new_queue, self.old_queue, self.link, self.time)
+        a = SaleQueue(self.symbol, self.new_queue, self.old_queue, self.link, self.time,self.base_vol)
         session.add(a)
 
 
@@ -70,9 +68,10 @@ class GroupBuySale(Base):
     price_and_percentage = Column(Integer, default=0)  # قیمت معامله و درصد
     link = Column(String)
     time = Column(String)
+    base_vol = Column(String)
 
     def __init__(self, symbol, status, number_buy_or_sale, each_haghighi,
-                 value_buy_or_sale, price_and_percentage, link, time):
+                 value_buy_or_sale, price_and_percentage, link, time,base_vol):
         self.symbol = symbol
         self.status = status
         self.number_buy_or_sale = number_buy_or_sale
@@ -81,10 +80,11 @@ class GroupBuySale(Base):
         self.price_and_percentage = price_and_percentage
         self.link = link
         self.time = time
+        self.base_vol=base_vol
 
     def add(self):
         a = GroupBuySale(self.symbol, self.status, self.number_buy_or_sale, self.each_haghighi,
-                         self.value_buy_or_sale, self.price_and_percentage, self.link, self.time)
+                         self.value_buy_or_sale, self.price_and_percentage, self.link, self.time,self.base_vol)
         session.add(a)
 
 
@@ -135,25 +135,24 @@ class HoghoghiBuySale(Base):
     price_and_percentage = Column(String)  # قیمت معامله و درصد
     link = Column(String)
     time = Column(String)
+    base_vol = Column(String)
 
     def __init__(self, symbol, status,
-                 value_buy_or_sale, price_and_percentage, link, time):
+                 value_buy_or_sale, price_and_percentage, link, time,base_vol):
         self.symbol = symbol
         self.status = status
         self.value_buy_or_sale = value_buy_or_sale
         self.price_and_percentage = price_and_percentage
         self.link = link
         self.time = time
-
+        self.base_vol=base_vol
     def add(self):
         a = HoghoghiBuySale(self.symbol, self.status, self.value_buy_or_sale
-                            , self.price_and_percentage, self.link, self.time)
+                            , self.price_and_percentage, self.link, self.time,self.base_vol)
         session.add(a)
 
 
 Base.metadata.create_all(engine)
-
-
 
 # look = Lock()
 #
