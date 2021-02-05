@@ -18,7 +18,7 @@ class AlarmBorce:
         self._config(self.driver, 3)
 
     def _config(self, driver, n):
-        market_watch_url = 'http://cdn2.tsetmc.com/Loader.aspx?ParTree=15131F#'
+        market_watch_url = 'http://tsetmc.com/Loader.aspx?ParTree=15131F#'
         driver.get(market_watch_url)
         # choose make filter
         driver.find_element_by_xpath('//*[@id="SettingsDesc"]/div[1]/a[7]').click()
@@ -161,51 +161,6 @@ class AlarmBorce:
                    }
                    return readFilter()
                    """
-        # elif n == 2:
-        #     self.script2 = """
-        #        function readFilter() {
-        #            let result = document.getElementById('main').children;
-        #            let data = {};
-        #            for (let i=0; i < result.length; i++){
-        #                let row = result[i];
-        #                let columns = row.children;
-        #                let tseId = columns[0].children[0].target;
-        #                data[tseId] = {
-        #                    haghighiSellVol: columns[23].innerText,
-        #                    hoghoghiSellVol: columns[24].innerText,
-        #                    hoghighiBuyVol: columns[25].innerText,
-        #
-        #                };
-        #            }
-        #            return data
-        #        }
-        #        return readFilter()
-        #        """
-        # else:
-        #     self.script3 = """
-        #            function readFilter() {
-        #                let result = document.getElementById('main').children;
-        #                let data = {};
-        #                for (let i=0; i < result.length; i++){
-        #                    let row = result[i];
-        #                    let columns = row.children;
-        #                    let tseId = columns[0].children[0].target;
-        #                    data[tseId] = {
-        #                        symbol: columns[0].innerText,
-        #                        link: columns[0].children[0].href,
-        #                        base_vol: columns[3].children[0].title,
-        #                        lastPrice: columns[7].innerHTML,
-        #                        vol_qu_buy: columns[18].innerText,
-        #                        vol_qu_sell: columns[21].innerText,
-        #                        tmin: columns[23].innerText,
-        #                        tmax: columns[24].innerText,
-        #
-        #                    };
-        #                }
-        #                return data
-        #            }
-        #            return readFilter()
-        #            """
 
     # 1-1-آلارم صف خرید نزدیک به ریختن
     def _buy_queue(self, new_symbols, old_symbols):
@@ -220,6 +175,9 @@ class AlarmBorce:
             tmax = int(new_symbols[symbol]['tmax'].replace(',', ''))
             data = new_symbols[symbol]['symbol']
             link = new_symbols[symbol]['link']
+
+            # # test3
+            # BuyQueue(data, a1, a, link, time.strftime("%H:%M:%S"), m).add()
 
             if a3 > m * 50 / 100 and last_price == tmax:
                 BuyQueue(data, a1, a, link, time.strftime("%H:%M:%S"), m).add()
@@ -240,6 +198,9 @@ class AlarmBorce:
             data = new_symbols[symbol]['symbol']
             link = new_symbols[symbol]['link']
 
+            # # test3
+            # SaleQueue(data, a1, a, link, time.strftime("%H:%M:%S"), m).add()
+
             if a3 > m * 2 / 100 and last_price == tmin:
                 SaleQueue(data, a1, a, link, time.strftime("%H:%M:%S"), m).add()
                 print(
@@ -248,6 +209,7 @@ class AlarmBorce:
     # 3- آلارم خرید و فروش گروهی
     def _group_buy_sale(self, new_symbols, old_symbols):
         for symbol in new_symbols:
+
             bu1 = int(old_symbols[symbol]['haghighiBuy'].replace(',', ''))  # حجم خرید حقیقی
             se1 = int(old_symbols[symbol]['haghighiSellVol'].replace(',', ''))  # حجم فروش حقیقی
 
@@ -273,7 +235,9 @@ class AlarmBorce:
             link = new_symbols[symbol]['link']
             data = new_symbols[symbol]['symbol']
             price_and_percentage = f"{lastPrice} ({lastPercent})"  # قیمت معامله و درصد
-
+            # # test3
+            # GroupBuySale(data, "خرید", nbu2, 1111, bu3, 1111, link, time.strftime(
+            #     "%H:%M:%S"), m).add()
             try:
                 each_haghighi_buy = nbu3 / nbu2 * lastPercent  # هر کد حقیقی
                 each_haghighi_sel = nse3 / nse2 * lastPercent  # هر کد حقیقی
@@ -308,7 +272,10 @@ class AlarmBorce:
             lastPrice = new_symbols[symbol]['lastPrice']  # قیمت اخرین معامله
             lastPercent = new_symbols[symbol]['lastPercent']  # قیمت اخرین معامله
             link = new_symbols[symbol]['link']
-
+            # # test3
+            # CapitaBuySale(data, "خرید", 111, 1111, 111, 111,
+            #               111, f"{lastPrice} ({lastPercent})", link,
+            #               time.strftime("%H:%M:%S")).add()
             try:
                 percentage_change_buy_sale = ((bu2 / nbu2) / (se2 / nse2))
                 if ((bu2 / nbu2) / (se2 / nse2)) > 2 * ((bu1 / nbu1) / (se1 / nse1)):
@@ -345,7 +312,9 @@ class AlarmBorce:
             link = new_symbols[symbol]['link']
             m = new_symbols[symbol]['base_vol']
             m = int(m.split(':')[2].replace(',', ''))  # حجم مبنا  # حجم مبنا
-
+            # # test3
+            # HoghoghiBuySale(data, "خرید", bu3, f"{lastPrice} ({lastPercent})", link,
+            #                 time.strftime("%H:%M:%S"), m).add()
             if bu3 > (m * 1 / 10):
                 HoghoghiBuySale(data, "خرید", bu3, f"{lastPrice} ({lastPercent})", link,
                                 time.strftime("%H:%M:%S"), m).add()
@@ -379,6 +348,8 @@ class AlarmBorce:
             sc = time.time() - all
             # اضافه کردن اطلاعات سه ستون به درایور دیگه
             new_symbols = div1
+            # print(div1['29590002988360984'])
+            # print(div1['2400322364771558'])
             if i == 0:
                 old_symbols = new_symbols
             pro = time.time()
@@ -407,6 +378,7 @@ class AlarmBorce:
             old_symbols = new_symbols
             print(Fore.CYAN + f"== all {time.time() - all} ==sc {sc} ==pro {tpro}========")
 
+        print("Close market !")
         # claen database
         if 0 < t_n and 180 > t_n:
             self._clean_table()

@@ -1,3 +1,4 @@
+import time
 from threading import Thread, Event
 from time import sleep
 
@@ -9,14 +10,37 @@ from view import DataBase
 
 # ======================== part ==========================
 class Alram:
+    t_e = 12 * 3600 + 30 * 60
+    t_s = 9 * 3600
+
     def __init__(self):
         self.stop_event = Event()
 
     def stop(self):
         self.stop_event.set()
+        sleep(1.5)
+        self.stop_event.clear()
 
     def run(self, fun, update):
-        Thread(target=fun, args=(update,)).start()
+        t_n = time.localtime().tm_hour * 3600 + time.localtime().tm_min * 60 + time.localtime().tm_sec
+        if self.t_s < t_n and self.t_e > t_n:
+            Thread(target=fun, args=(update,)).start()
+        else:
+            markup = ReplyKeyboardMarkup([["برگشت"]], resize_keyboard=True)
+            update.message.reply_text("وقت بازار تموم شده لطفا بعدا در وقت بازار استفاده کنید.", ParseMode.HTML,
+                                      reply_markup=markup)
+
+    def check_open_market(self, update):
+        t_n = time.localtime().tm_hour * 3600 + time.localtime().tm_min * 60 + time.localtime().tm_sec
+        if not self.t_e > t_n:
+            markup = ReplyKeyboardMarkup([["برگشت"]], resize_keyboard=True)
+            update.message.reply_text("وقت بازار تموم شده لطفا بعدا در وقت بازار استفاده کنید.", reply_markup=markup)
+            return True
+
+        if self.stop_event.is_set():
+            self.stop_event.clear()
+            return True
+        return False
 
     # صف خرید در حال ریختن
     def buy_queue(self, update):
@@ -25,9 +49,12 @@ class Alram:
             key = [["برگشت"]]
             markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
             update.message.reply_text("لطفا صبر کنید...", ParseMode.HTML, reply_markup=markup)
+            last_new = session.query(BuyQueue).count()
             while True:
+                if self.check_open_market(update):
+                    break
                 text = "🔔❌ کاهش 50 درصد #صف_خرید ❌🔔\n"
-                last_old = session.query(BuyQueue).count()
+                last_old = last_new
                 sleep(1)
                 last_new = session.query(BuyQueue).count()
                 if last_old < last_new:
@@ -35,12 +62,12 @@ class Alram:
                     for i in list:
                         text += f"""
                                 ####################
-    #{i.symbol}
-    حجم صف خرید قدیم :{i.old_queue}
-    حجم صف خرید جدید :{i.new_queue}
-    حجم مبنا :{i.base_vol}
-    <a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
-    🕘 {i.time}"""
+#{i.symbol}
+حجم صف خرید قدیم :{i.old_queue}
+حجم صف خرید جدید :{i.new_queue}
+حجم مبنا :{i.base_vol}
+<a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
+🕘 {i.time}"""
                     if self.stop_event.is_set():  # or database.is_check_active() == False
                         # if database.is_check_active() == False:
                         #     text = "متاسفانه اشتراک شما تموم شد. برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
@@ -61,9 +88,12 @@ class Alram:
             key = [["برگشت"]]
             markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
             update.message.reply_text("لطفا صبر کنید...", ParseMode.HTML, reply_markup=markup)
+            last_new = session.query(SaleQueue).count()
             while True:
+                if self.check_open_market(update):
+                    break
                 text = "🔔✅ کاهش 20 درصدی #صف_فروش ✅🔔\n"
-                last_old = session.query(SaleQueue).count()
+                last_old = last_new
                 sleep(1)
                 last_new = session.query(SaleQueue).count()
                 if last_old < last_new:
@@ -85,6 +115,7 @@ class Alram:
                         break
                     else:
                         update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
+
                 session.close()
         else:
             text = "شما به دلیل فعال نبودن اشتراک اجازه استفاده ندارید برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
@@ -97,8 +128,11 @@ class Alram:
             key = [["برگشت"]]
             markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
             update.message.reply_text("لطفا صبر کنید...", ParseMode.HTML, reply_markup=markup)
+            last_new = session.query(GroupBuySale).count()
             while True:
-                last_old = session.query(GroupBuySale).count()
+                if self.check_open_market(update):
+                    break
+                last_old = last_new
                 sleep(1)
                 last_new = session.query(GroupBuySale).count()
                 text = "🔔 خرید و فروش گروهی حقیقی 🔔\n"
@@ -136,8 +170,11 @@ class Alram:
             key = [["برگشت"]]
             markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
             update.message.reply_text("لطفا صبر کنید...", ParseMode.HTML, reply_markup=markup)
+            last_new = session.query(CapitaBuySale).count()
             while True:
-                last_old = session.query(CapitaBuySale).count()
+                if self.check_open_market(update):
+                    break
+                last_old = last_new
                 sleep(1)
                 last_new = session.query(CapitaBuySale).count()
                 text = "🔔 تغییر سرانه خریدار یا فروشنده حقیقی 🔔\n"
@@ -163,6 +200,7 @@ class Alram:
                         break
                     else:
                         update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
+
                 session.close()
 
         else:
@@ -176,13 +214,16 @@ class Alram:
             key = [["برگشت"]]
             markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
             update.message.reply_text("لطفا صبر کنید...", ParseMode.HTML, reply_markup=markup)
+            last_new = session.query(HoghoghiBuySale).count()
             while True:
+                if self.check_open_market(update):
+                    break
                 text = "🔔 خرید و فروش سنگین حقوقی 🔔\n"
-                last_old = session.query(HoghoghiBuySale).count()
+                last_old = last_new
                 sleep(1)
                 last_new = session.query(HoghoghiBuySale).count()
                 if last_old < last_new:
-                    list = session.query(HoghoghiBuySale).all()[last_old:]
+                    list = session.query(HoghoghiBuySale).all()[last_old - 1:]
                     for i in list:
                         text += f"""
                             ####################
@@ -200,6 +241,7 @@ class Alram:
                         break
                     else:
                         update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
+
                 session.close()
         else:
             text = "شما به دلیل فعال نبودن اشتراک اجازه استفاده ندارید برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
@@ -213,6 +255,7 @@ class Alram:
             key = [["برگشت"]]
             markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
             update.message.reply_text("لطفا صبر کنید...", ParseMode.HTML, reply_markup=markup)
+
             def check(text):
                 if self.stop_event.is_set():  # or database.is_check_active() == False
                     # if database.is_check_active() == False:
@@ -224,15 +267,23 @@ class Alram:
                     update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
                 return False
 
+            HoghoghiBuySale_new = session.query(HoghoghiBuySale).count()
+            BuyQueue_new = session.query(BuyQueue).count()
+            SaleQueue_new = session.query(SaleQueue).count()
+            GroupBuySale_new = session.query(GroupBuySale).count()
+            CapitaBuySale_new = session.query(CapitaBuySale).count()
+
             while True:
+                if self.check_open_market(update):
+                    break
 
                 # =======================================
-                HoghoghiBuySale_old = session.query(HoghoghiBuySale).count()
-                BuyQueue_old = session.query(BuyQueue).count()
-                SaleQueue_old = session.query(SaleQueue).count()
-                GroupBuySale_old = session.query(GroupBuySale).count()
-                CapitaBuySale_old = session.query(CapitaBuySale).count()
-                sleep(1)
+                HoghoghiBuySale_old = HoghoghiBuySale_new
+                BuyQueue_old = BuyQueue_new
+                SaleQueue_old = SaleQueue_new
+                GroupBuySale_old = GroupBuySale_new
+                CapitaBuySale_old = CapitaBuySale_new
+                sleep(0.9)
                 HoghoghiBuySale_new = session.query(HoghoghiBuySale).count()
                 BuyQueue_new = session.query(BuyQueue).count()
                 SaleQueue_new = session.query(SaleQueue).count()
@@ -241,7 +292,7 @@ class Alram:
                 # =============================================
                 text = "🔔 خرید و فروش سنگین حقوقی 🔔\n"
                 if HoghoghiBuySale_old < HoghoghiBuySale_new:
-                    list = session.query(HoghoghiBuySale).all()[HoghoghiBuySale_old:]
+                    list = session.query(HoghoghiBuySale).all()[HoghoghiBuySale_old - 1:]
                     for i in list:
                         text += f"""
                             ####################
@@ -257,7 +308,7 @@ class Alram:
                 # ==========================================
                 text = "🔔❌ کاهش 50 درصد #صف_خرید ❌🔔\n"
                 if BuyQueue_old < BuyQueue_new:
-                    list = session.query(BuyQueue).all()[BuyQueue_old:]
+                    list = session.query(BuyQueue).all()[BuyQueue_old - 1:]
                     for i in list:
                         text += f"""
                                     ####################
@@ -273,7 +324,7 @@ class Alram:
                 # ============================================
                 text = "🔔✅ کاهش 20 درصدی #صف_فروش ✅🔔\n"
                 if SaleQueue_old < SaleQueue_new:
-                    list = session.query(SaleQueue).all()[SaleQueue_old:]
+                    list = session.query(SaleQueue).all()[SaleQueue_old - 1:]
                     for i in list:
                         text += f"""
                                 ####################
@@ -289,7 +340,7 @@ class Alram:
                 # ==========================================
                 text = "🔔 خرید و فروش گروهی حقیقی 🔔\n"
                 if GroupBuySale_old < GroupBuySale_new:
-                    list = session.query(GroupBuySale).all()[GroupBuySale_old:]
+                    list = session.query(GroupBuySale).all()[GroupBuySale_old - 1:]
                     for i in list:
                         text += f"""
                                         ####################
@@ -307,7 +358,7 @@ class Alram:
                 # ==========================================
                 text = "🔔 تغییر سرانه خریدار یا فروشنده حقیقی 🔔\n"
                 if CapitaBuySale_old < CapitaBuySale_new:
-                    list = session.query(CapitaBuySale).all()[CapitaBuySale_old:]
+                    list = session.query(CapitaBuySale).all()[CapitaBuySale_old - 1:]
                     for i in list:
                         text += f"""
                                         ####################
@@ -323,6 +374,7 @@ class Alram:
                     # update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
                     if check(text):
                         break
+
                 session.close()
         else:
             text = "شما به دلیل فعال نبودن اشتراک اجازه استفاده ندارید برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
