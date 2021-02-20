@@ -4,7 +4,6 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 
 Base = declarative_base()
 engine = create_engine('sqlite:///database_alarm.db', connect_args={'check_same_thread': False})
-
 Se = sessionmaker(bind=engine)
 session = scoped_session(Se)
 
@@ -20,16 +19,16 @@ class BuyQueue(Base):
     time = Column(String)
     base_vol = Column(String)
 
-    def __init__(self, symbol, new_queue, old_queue, link, time,base_vol):
+    def __init__(self, symbol, new_queue, old_queue, link, time, base_vol):
         self.symbol = symbol
         self.new_queue = new_queue
         self.old_queue = old_queue
         self.link = link
         self.time = time
-        self.base_vol=base_vol
+        self.base_vol = base_vol
 
     def add(self):
-        a = BuyQueue(self.symbol, self.new_queue, self.old_queue, self.link, self.time,self.base_vol)
+        a = BuyQueue(self.symbol, self.new_queue, self.old_queue, self.link, self.time, self.base_vol)
         session.add(a)
 
 
@@ -44,15 +43,16 @@ class SaleQueue(Base):
     time = Column(String)
     base_vol = Column(String)
 
-    def __init__(self, symbol, new_queue, old_queue, link, time,base_vol):
+    def __init__(self, symbol, new_queue, old_queue, link, time, base_vol):
         self.symbol = symbol
         self.new_queue = new_queue
         self.old_queue = old_queue
         self.link = link
         self.time = time
-        self.base_vol=base_vol
+        self.base_vol = base_vol
+
     def add(self):
-        a = SaleQueue(self.symbol, self.new_queue, self.old_queue, self.link, self.time,self.base_vol)
+        a = SaleQueue(self.symbol, self.new_queue, self.old_queue, self.link, self.time, self.base_vol)
         session.add(a)
 
 
@@ -71,7 +71,7 @@ class GroupBuySale(Base):
     base_vol = Column(String)
 
     def __init__(self, symbol, status, number_buy_or_sale, each_haghighi,
-                 value_buy_or_sale, price_and_percentage, link, time,base_vol):
+                 value_buy_or_sale, price_and_percentage, link, time, base_vol):
         self.symbol = symbol
         self.status = status
         self.number_buy_or_sale = number_buy_or_sale
@@ -80,11 +80,11 @@ class GroupBuySale(Base):
         self.price_and_percentage = price_and_percentage
         self.link = link
         self.time = time
-        self.base_vol=base_vol
+        self.base_vol = base_vol
 
     def add(self):
         a = GroupBuySale(self.symbol, self.status, self.number_buy_or_sale, self.each_haghighi,
-                         self.value_buy_or_sale, self.price_and_percentage, self.link, self.time,self.base_vol)
+                         self.value_buy_or_sale, self.price_and_percentage, self.link, self.time, self.base_vol)
         session.add(a)
 
 
@@ -102,9 +102,10 @@ class CapitaBuySale(Base):
     percentage_change = Column(String)  # قیمت معامله و درصد
     link = Column(String)
     time = Column(String)
+    base_vol = Column(String)
 
     def __init__(self, symbol, status, old_buy, old_sale, new_buy, new_sale,
-                 percentage_change_buy_sale, percentage_change, link, time):
+                 percentage_change_buy_sale, percentage_change, link, time,base_vol):
         self.symbol = symbol
         self.status = status
         self.old_buy = old_buy
@@ -115,11 +116,12 @@ class CapitaBuySale(Base):
         self.percentage_change_buy_sale = percentage_change_buy_sale
         self.link = link
         self.time = time
+        self.base_vol = base_vol
 
     def add(self):
         a = CapitaBuySale(self.symbol, self.status, self.old_buy, self.old_sale,
                           self.new_buy, self.new_sale, self.percentage_change_buy_sale, self.percentage_change,
-                          self.link, self.time)
+                          self.link, self.time,self.base_vol)
         session.add(a)
         # session.commit()
         # session.close()
@@ -138,17 +140,18 @@ class HoghoghiBuySale(Base):
     base_vol = Column(String)
 
     def __init__(self, symbol, status,
-                 value_buy_or_sale, price_and_percentage, link, time,base_vol):
+                 value_buy_or_sale, price_and_percentage, link, time, base_vol):
         self.symbol = symbol
         self.status = status
         self.value_buy_or_sale = value_buy_or_sale
         self.price_and_percentage = price_and_percentage
         self.link = link
         self.time = time
-        self.base_vol=base_vol
+        self.base_vol = base_vol
+
     def add(self):
         a = HoghoghiBuySale(self.symbol, self.status, self.value_buy_or_sale
-                            , self.price_and_percentage, self.link, self.time,self.base_vol)
+                            , self.price_and_percentage, self.link, self.time, self.base_vol)
         session.add(a)
 
 

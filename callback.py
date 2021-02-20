@@ -65,7 +65,6 @@ class Alram:
 #{i.symbol}
 حجم صف خرید قدیم :{i.old_queue}
 حجم صف خرید جدید :{i.new_queue}
-حجم مبنا :{i.base_vol}
 <a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
 🕘 {i.time}"""
                     if self.stop_event.is_set():  # or database.is_check_active() == False
@@ -104,7 +103,6 @@ class Alram:
 #{i.symbol}
 حجم صف فروش قدیم :{i.old_queue}
 حجم صف فروش جدید :{i.new_queue}
-حجم مبنا :{i.base_vol}
 <a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
 🕘 {i.time}"""
                     if self.stop_event.is_set():  # or database.is_check_active() == False
@@ -146,7 +144,6 @@ class Alram:
 هر کد حقیقی :{i.each_haghighi}
 ارزش{i.status} : {i.value_buy_or_sale}
 قیمت معامله :{i.price_and_percentage}
-حجم مبنا :{i.base_vol}
 <a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
 🕘 {i.time}"""
                     if self.stop_event.is_set():  # or database.is_check_active() == False
@@ -230,7 +227,6 @@ class Alram:
 وضعیت{i.status} برای نماد #{i.symbol}
 ارزش{i.status} : {i.value_buy_or_sale}
 قیمت معامله و درصد :{i.price_and_percentage}
-حجم مبنا :{i.base_vol}
 <a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
 🕘 {i.time}"""
                     if self.stop_event.is_set():  # or database.is_check_active() == False
@@ -265,6 +261,7 @@ class Alram:
                     return True
                 else:
                     update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
+                    sleep(0.1)
                 return False
 
             HoghoghiBuySale_new = session.query(HoghoghiBuySale).count()
@@ -276,7 +273,6 @@ class Alram:
             while True:
                 if self.check_open_market(update):
                     break
-
                 # =======================================
                 HoghoghiBuySale_old = HoghoghiBuySale_new
                 BuyQueue_old = BuyQueue_new
@@ -292,64 +288,57 @@ class Alram:
                 # =============================================
                 text = "🔔 خرید و فروش سنگین حقوقی 🔔\n"
                 if HoghoghiBuySale_old < HoghoghiBuySale_new:
-                    list = session.query(HoghoghiBuySale).all()[HoghoghiBuySale_old - 1:]
+                    list = session.query(HoghoghiBuySale).all()[HoghoghiBuySale_old:]
                     for i in list:
                         text += f"""
                             ####################
-وضعیت{i.status} برای نماد #{i.symbol}
+وضعیت {i.status} برای نماد #{i.symbol}
 ارزش{i.status} : {i.value_buy_or_sale}
 قیمت معامله و درصد :{i.price_and_percentage}
-حجم مبنا :{i.base_vol}
 <a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
 🕘 {i.time}"""
-                    # update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
                     if check(text):
                         break
                 # ==========================================
                 text = "🔔❌ کاهش 50 درصد #صف_خرید ❌🔔\n"
                 if BuyQueue_old < BuyQueue_new:
-                    list = session.query(BuyQueue).all()[BuyQueue_old - 1:]
+                    list = session.query(BuyQueue).all()[BuyQueue_old:]
                     for i in list:
                         text += f"""
                                     ####################
 #{i.symbol}
 حجم صف خرید قدیم :{i.old_queue}
 حجم صف خرید جدید :{i.new_queue}
-حجم مبنا :{i.base_vol}
 <a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
 🕘 {i.time}"""
-                    # update.message.reply_text(text, ParseMode.HTML, reply_markup=markup)
                     if check(text):
                         break
                 # ============================================
                 text = "🔔✅ کاهش 20 درصدی #صف_فروش ✅🔔\n"
                 if SaleQueue_old < SaleQueue_new:
-                    list = session.query(SaleQueue).all()[SaleQueue_old - 1:]
+                    list = session.query(SaleQueue).all()[SaleQueue_old:]
                     for i in list:
                         text += f"""
                                 ####################
 #{i.symbol}
 حجم صف فروش قدیم :{i.old_queue}
 حجم صف فروش جدید :{i.new_queue}
-حجم مبنا :{i.base_vol}
 <a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
 🕘 {i.time}"""
-                    # update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
                     if check(text):
                         break
                 # ==========================================
                 text = "🔔 خرید و فروش گروهی حقیقی 🔔\n"
                 if GroupBuySale_old < GroupBuySale_new:
-                    list = session.query(GroupBuySale).all()[GroupBuySale_old - 1:]
+                    list = session.query(GroupBuySale).all()[GroupBuySale_old:]
                     for i in list:
                         text += f"""
                                         ####################
-وضعیت{i.status} برای نماد #{i.symbol}
-تعداد{i.status}  : {i.number_buy_or_sale}
+وضعیت {i.status} برای نماد #{i.symbol}
+تعداد {i.status}  : {i.number_buy_or_sale}
 هر کد حقیقی :{i.each_haghighi}
 ارزش{i.status} : {i.value_buy_or_sale}
 قیمت معامله :{i.price_and_percentage}
-حجم مبنا :{i.base_vol}
 <a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
 🕘 {i.time}"""
                     # update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
@@ -358,11 +347,11 @@ class Alram:
                 # ==========================================
                 text = "🔔 تغییر سرانه خریدار یا فروشنده حقیقی 🔔\n"
                 if CapitaBuySale_old < CapitaBuySale_new:
-                    list = session.query(CapitaBuySale).all()[CapitaBuySale_old - 1:]
+                    list = session.query(CapitaBuySale).all()[CapitaBuySale_old:]
                     for i in list:
                         text += f"""
                                         ####################
-وضعیت سرانه{i.status} برای نماد #{i.symbol}
+وضعیت سرانه {i.status} برای نماد #{i.symbol}
 سرانه خریدار قدیم  :{i.old_buy}
 سرانه فروشنده قدیم :{i.old_sale}
 سرانه خریدار جدید :{i.new_buy}
@@ -371,10 +360,8 @@ class Alram:
 قیمت معامله و درصد :{i.percentage_change}
 <a href='{i.link}'>صفحه در وبسایت تالار بورس</a>
 🕘 {i.time}"""
-                    # update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
                     if check(text):
                         break
-
                 session.close()
         else:
             text = "شما به دلیل فعال نبودن اشتراک اجازه استفاده ندارید برای فعال کردن میتوانتد اشتراک بخرید با دوستانتون را دعوت کنید"
