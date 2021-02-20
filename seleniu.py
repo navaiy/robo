@@ -443,5 +443,5 @@ class AlarmBorce:
         Thread(target=min, args=()).start()
 
 
-# a = AlarmBorce()
-# a.run()
+a = AlarmBorce()
+a.run()
